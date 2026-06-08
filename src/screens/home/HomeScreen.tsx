@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Bell, UserCircle } from 'phosphor-react-native';
+import { Bell, UserCircle, Key } from 'phosphor-react-native';
 import { useAuth } from '@/context/AuthContext';
 import type { Pack } from '@/models';
 import type { MainTabParamList, RootStackParamList } from '@/navigation/types';
 import { getAllPacks } from '@/services/db/sqlite';
+import { joinMatch } from '@/services/online/matchmaking';
 import { useTheme } from '@/theme';
-import { Badge, Card, FormatCard, ScreenLayout } from '@/ui';
+import { Badge, Card, FormatCard, ScreenLayout, Button } from '@/ui';
 import { DEFAULT_PACKS } from '@/data/defaultPacks';
 
 type Nav = CompositeNavigationProp<
@@ -23,12 +24,49 @@ export function HomeScreen() {
   const { profile } = useAuth();
   const navigation = useNavigation<Nav>();
   const [packs, setPacks] = useState<Pack[]>(DEFAULT_PACKS);
+  const [roomCode, setRoomCode] = useState('');
+  const [isJoining, setIsJoining] = useState(false);
 
   useEffect(() => {
     getAllPacks().then(local => {
       if (local.length > 0) setPacks(local);
     });
   }, []);
+
+  const handleJoinMatch = async () => {
+    if (!roomCode || roomCode.length < 6) {
+      Alert.alert('Erreur', 'Veuillez saisir un code valide (6 caractères).');
+      return;
+    }
+
+    if (!profile) {
+      Alert.alert('Erreur', 'Vous devez être connecté pour rejoindre une partie en ligne.');
+      return;
+    }
+
+    setIsJoining(true);
+    try {
+      // Pour l'instant, on suppose que l'ID du match est lié au code (ou on le recherche)
+      // En prod, il faudrait une table de correspondance code -> matchId
+      // Ici on triche un peu : on utilise le code comme préfixe de l'ID ou on demande l'ID complet
+      // Mais dans notre système simple, le code EST le matchId raccourci.
+      // On va implémenter une recherche simple ou supposer que matchId = roomCode pour la démo
+      // TODO: Implémenter la recherche de match par code
+      Alert.alert('Info', 'La recherche par code arrive. Utilisez l\'ID complet pour le test.');
+      
+      await joinMatch(roomCode.toLowerCase(), profile.id, profile.pseudo);
+      navigation.navigate('GameLobby', {
+        matchId: roomCode.toLowerCase(),
+        // Les paramètres suivants seront écrasés par la souscription dans GameLobby
+        settings: {} as any,
+        players: [],
+      });
+    } catch (error: any) {
+      Alert.alert('Erreur', error.message || 'Impossible de rejoindre la partie.');
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   return (
     <ScreenLayout scroll contentStyle={styles.container}>
@@ -74,6 +112,38 @@ export function HomeScreen() {
           onPress={() => navigation.navigate('MatchSetup', { format: 'all_team' })}
         />
       </View>
+
+      <Card style={styles.joinCard}>
+        <View style={styles.joinHeader}>
+          <Key color={theme.colors.primary} size={20} weight="bold" />
+          <Text style={[theme.typography.bodyMedium, { color: theme.colors.text, marginLeft: 8 }]}>
+            Rejoindre une partie
+          </Text>
+        </View>
+        <View style={styles.joinInputRow}>
+          <TextInput
+            placeholder="Code de salle"
+            placeholderTextColor={theme.colors.textSecondary}
+            value={roomCode}
+            onChangeText={setRoomCode}
+            autoCapitalize="characters"
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.colors.surface,
+                color: theme.colors.text,
+                borderColor: theme.colors.border,
+              },
+            ]}
+          />
+          <Button
+            label="OK"
+            onPress={handleJoinMatch}
+            loading={isJoining}
+            style={styles.joinBtn}
+          />
+        </View>
+      </Card>
 
       <Text style={[theme.typography.bodyMedium, styles.sectionTitle, { color: theme.colors.text }]}>
         Packs populaires

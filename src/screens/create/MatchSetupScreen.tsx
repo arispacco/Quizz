@@ -6,6 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '@/context/AuthContext';
 import type { ConnectionMode, GameFormat, Match, MatchSettings } from '@/models';
+import { createOnlineMatch } from '@/services/online/matchmaking';
 import type { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme';
 import { Button, Card, FormatCard, ScreenLayout, Stepper } from '@/ui';
@@ -137,6 +138,16 @@ export function MatchSetupScreen() {
       <View style={styles.nav}>
         {step > 1 && <Button label="Précédent" variant="secondary" onPress={() => setStep(s => s - 1)} />}
         {step < 4 && <Button label="Suivant" onPress={() => setStep(s => s + 1)} />}
+      </View>
+    </ScreenLayout>
+  );
+}
+
+const styles = StyleSheet.create({
+  formatRow: { flexDirection: 'row', gap: 10 },
+  nav: { flexDirection: 'row', gap: 12, marginTop: 16 },
+});
+> s + 1)} />}
       </View>
     </ScreenLayout>
   );

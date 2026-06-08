@@ -1,3 +1,4 @@
+import database from '@react-native-firebase/database';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionMode, GameFormat, Match, MatchSettings } from '@/models';
 import { createMatch, subscribeToMatch, updateMatch } from '@/services/firebase/database';
@@ -82,8 +83,20 @@ export async function joinMatch(matchId: string, playerId: string, pseudo: strin
 
 export async function startMatch(matchId: string): Promise<void> {
   if (!isFirebaseReady()) return;
-  await updateMatch(matchId, {
+  
+  const snap = await database().ref(`matches/${matchId}`).once('value');
+  const match = { id: matchId, ...snap.val() } as Match;
+  
+  const patch: Partial<Match> = {
     status: 'in_progress',
     updatedAt: new Date().toISOString(),
-  });
+  };
+
+  if (match.settings.format === 'tournoi') {
+    const bracket = generateBracket(matchId, match.teams, match.settings.tournamentFormat || 'single_elimination');
+    await createBracket(bracket);
+    patch.bracketId = bracket.id;
+  }
+
+  await updateMatch(matchId, patch);
 }

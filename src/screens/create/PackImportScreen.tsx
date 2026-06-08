@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, Alert } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { useNavigation } from '@react-navigation/native';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '@/context/AuthContext';
 import type { Pack, Question } from '@/models';
-import { generateQuestionsFromText } from '@/services/ai';
+import { generateQuestionsFromText, generateQuestionsFromAudio } from '@/services/ai';
 import { savePack } from '@/services/db/sqlite';
 import { useTheme } from '@/theme';
 import { Button, Card, Input, ScreenLayout, useToast } from '@/ui';
@@ -15,20 +15,29 @@ export function PackImportScreen() {
   const navigation = useNavigation();
   const { profile } = useAuth();
   const { showToast } = useToast();
+  
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<Omit<Question, 'id' | 'createdAt'>[]>([]);
   const [packName, setPackName] = useState('Pack IA');
+  const [audioFile, setAudioFile] = useState<{ uri: string; type: string } | null>(null);
 
   const pickFile = async () => {
     try {
       const result = await DocumentPicker.pickSingle({
-        type: [DocumentPicker.types.plainText, DocumentPicker.types.allFiles],
+        type: [DocumentPicker.types.plainText, DocumentPicker.types.audio],
       });
-      if (result.uri) {
+      
+      if (result.type?.startsWith('audio/')) {
+        setAudioFile({ uri: result.uri, type: result.type });
+        setText(''); // On efface le texte si on importe de l'audio
+        showToast('Fichier audio sélectionné', 'success');
+      } else {
         const response = await fetch(result.uri);
         const content = await response.text();
         setText(content);
+        setAudioFile(null);
+        showToast('Fichier texte importé', 'success');
       }
     } catch (e) {
       if (!DocumentPicker.isCancel(e)) {
@@ -37,19 +46,41 @@ export function PackImportScreen() {
     }
   };
 
+  const fileToBase64 = async (uri: string): Promise<string> => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = (reader.result as string).split(',')[1];
+        resolve(base64String);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
   const analyze = async () => {
-    if (!text.trim()) {
-      showToast('Ajoutez du contenu source', 'error');
+    if (!text.trim() && !audioFile) {
+      showToast('Ajoutez du texte ou un fichier audio', 'error');
       return;
     }
+    
     setLoading(true);
     try {
-      const result = await generateQuestionsFromText({ text, count: 5 });
+      let result;
+      if (audioFile) {
+        const base64 = await fileToBase64(audioFile.uri);
+        result = await generateQuestionsFromAudio(base64, audioFile.type);
+      } else {
+        result = await generateQuestionsFromText({ text, count: 5 });
+      }
+      
       setGenerated(result.questions);
       showToast(`${result.questions.length} questions générées`, 'success');
     } catch (e) {
       showToast(
-        e instanceof Error ? e.message : 'IA indisponible — vérifiez Firebase Functions',
+        e instanceof Error ? e.message : 'IA indisponible',
         'error',
       );
     } finally {

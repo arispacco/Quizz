@@ -119,35 +119,42 @@ export function ExploreScreen() {
       )}
 
       {filter === 'players' && (
-        <FlatList
-          data={filteredPlayers}
-          keyExtractor={item => item.id}
-          scrollEnabled={false}
-          ListEmptyComponent={
-            <Card>
-              <Text style={{ color: theme.colors.textSecondary }}>Aucun joueur trouvé</Text>
-            </Card>
-          }
-          renderItem={({ item }) => (
-            <Card style={styles.card}>
-              <View style={styles.playerRow}>
-                <View style={[styles.avatar, { backgroundColor: theme.colors.primary }]}>
-                  <Text style={{ color: '#fff', fontWeight: '700' }}>{item.pseudo[0]}</Text>
+        <>
+          {loadingPlayers && <ActivityIndicator color={theme.colors.primary} style={{ marginBottom: 10 }} />}
+          <FlatList
+            data={players}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              !loadingPlayers ? (
+                <Card>
+                  <Text style={{ color: theme.colors.textSecondary }}>
+                    {query.length > 1 ? 'Aucun joueur trouvé' : 'Saisissez au moins 2 caractères'}
+                  </Text>
+                </Card>
+              ) : null
+            }
+            renderItem={({ item }) => (
+              <Card style={styles.card}>
+                <View style={styles.playerRow}>
+                  <View style={[styles.avatar, { backgroundColor: theme.colors.primary }]}>
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>{item.pseudo[0].toUpperCase()}</Text>
+                  </View>
+                  <View style={styles.playerInfo}>
+                    <Text style={[theme.typography.bodyMedium, { color: theme.colors.text }]}>{item.pseudo}</Text>
+                    <Text style={{ color: theme.colors.elo }}>ELO {item.elo} · Niv. {item.xpLevel}</Text>
+                  </View>
+                  <Button
+                    label="Profil"
+                    variant="secondary"
+                    onPress={() => navigation.navigate('UserProfile', { userId: item.id })}
+                    style={styles.followBtn}
+                  />
                 </View>
-                <View style={styles.playerInfo}>
-                  <Text style={[theme.typography.bodyMedium, { color: theme.colors.text }]}>{item.pseudo}</Text>
-                  <Text style={{ color: theme.colors.elo }}>ELO {item.elo} · Niv. {item.level}</Text>
-                </View>
-                <Button
-                  label="Suivre"
-                  variant="secondary"
-                  onPress={() => navigation.navigate('UserProfile', { userId: item.id })}
-                  style={styles.followBtn}
-                />
-              </View>
-            </Card>
-          )}
-        />
+              </Card>
+            )}
+          />
+        </>
       )}
 
       {filter === 'clubs' && (
@@ -203,5 +210,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   playerInfo: { flex: 1, marginLeft: 12 },
+  followBtn: { paddingVertical: 8, paddingHorizontal: 12, minHeight: 36 },
+});
+},
   followBtn: { paddingVertical: 8, paddingHorizontal: 12, minHeight: 36 },
 });
