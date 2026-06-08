@@ -1,0 +1,48 @@
+name: Build iOS
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare Firebase config stub (CI build only)
+        run: cp ios/LeJeu/GoogleService-Info.plist.example ios/LeJeu/GoogleService-Info.plist
+
+      - name: Install CocoaPods
+        working-directory: ios
+        run: |
+          pod install
+
+      - name: Build iOS (simulator, unsigned)
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -workspace LeJeu.xcworkspace \
+            -scheme LeJeu \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-build
+          path: ios/build/Build/Products/Release-iphonesimulator/
+          retention-days: 14

@@ -1,0 +1,11 @@
+name = "le-jeu-ai"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Variable publique : doit correspondre à l'ID du projet Firebase (le-jeu-7k2p9).
+[vars]
+FIREBASE_PROJECT_ID = "le-jeu-7k2p9"
+
+# GEMINI_API_KEY n'est PAS stocké ici. C'est un secret :
+#   npx wrangler secret put GEMINI_API_KEY

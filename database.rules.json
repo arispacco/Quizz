@@ -1,0 +1,54 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": true,
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "matches": {
+      "$matchId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "duels": {
+      "$duelId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "packs": {
+      "$packId": {
+        ".read": true,
+        ".write": "auth != null && (!data.exists() || data.child('authorId').val() === auth.uid)"
+      }
+    },
+    "clubs": {
+      "$clubId": {
+        ".read": true,
+        ".write": "auth != null"
+      }
+    },
+    "follows": {
+      "$followerId": {
+        ".read": "auth != null",
+        "$targetId": {
+          ".write": "$followerId === auth.uid"
+        }
+      }
+    },
+    "activities": {
+      "$userId": {
+        ".read": "auth != null",
+        ".write": "$userId === auth.uid"
+      }
+    },
+    "presence": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "$uid === auth.uid"
+      }
+    }
+  }
+}

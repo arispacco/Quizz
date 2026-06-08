@@ -1,0 +1,19 @@
+{
+  "name": "le-jeu-ai-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cloudflare Worker remplaçant les Cloud Functions Gemini de Le Jeu",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240925.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^3.80.0"
+  }
+}
