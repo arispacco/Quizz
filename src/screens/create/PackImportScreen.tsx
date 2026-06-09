@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, Alert } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, isCancel, types } from '@react-native-documents/picker';
 import { useNavigation } from '@react-navigation/native';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '@/context/AuthContext';
@@ -24,8 +24,9 @@ export function PackImportScreen() {
 
   const pickFile = async () => {
     try {
-      const result = await DocumentPicker.pickSingle({
-        type: [DocumentPicker.types.plainText, DocumentPicker.types.audio],
+      const [result] = await pick({
+        type: [types.plainText, types.audio],
+        mode: 'import',
       });
       
       if (result.type?.startsWith('audio/')) {
@@ -40,7 +41,7 @@ export function PackImportScreen() {
         showToast('Fichier texte importé', 'success');
       }
     } catch (e) {
-      if (!DocumentPicker.isCancel(e)) {
+      if (!isCancel(e)) {
         showToast('Erreur lors de l\'import', 'error');
       }
     }
