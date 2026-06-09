@@ -70,7 +70,7 @@ export function GameLobbyScreen() {
 
   if (!match && route.params.settings.connectionMode === 'online') {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background, justifyContent: 'center' }]}>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: 'center' }}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );

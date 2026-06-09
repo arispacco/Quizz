@@ -1,8 +1,9 @@
 import database from '@react-native-firebase/database';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionMode, GameFormat, Match, MatchSettings } from '@/models';
-import { createMatch, subscribeToMatch, updateMatch } from '@/services/firebase/database';
+import { createMatch, subscribeToMatch, updateMatch, createBracket } from '@/services/firebase/database';
 import { isFirebaseReady } from '@/services/firebase/config';
+import { generateBracket } from './bracket';
 
 export interface MatchmakingRequest {
   hostId: string;

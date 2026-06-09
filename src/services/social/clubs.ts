@@ -38,6 +38,12 @@ export async function joinClub(clubId: string, userId: string): Promise<void> {
     .transaction(count => (count ?? 0) + 1);
 }
 
+export async function getClub(clubId: string): Promise<Club | null> {
+  if (!ensureFirebase()) return null;
+  const snap = await database().ref(`clubs/${clubId}`).once('value');
+  return snap.exists() ? ({ id: clubId, ...snap.val() } as Club) : null;
+}
+
 export async function isClubMember(clubId: string, userId: string): Promise<boolean> {
   if (!ensureFirebase()) return false;
   const snap = await database().ref(`clubMembers/${clubId}/${userId}`).once('value');

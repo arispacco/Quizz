@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -35,6 +35,8 @@ export function ExploreScreen() {
   const [packs, setPacks] = useState<Pack[]>(DEFAULT_PACKS);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<ExploreFilter>('packs');
+  const [players, setPlayers] = useState<any[]>([]);
+  const [loadingPlayers, setLoadingPlayers] = useState(false);
 
   useEffect(() => {
     getAllPacks().then(local => {
@@ -210,8 +212,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   playerInfo: { flex: 1, marginLeft: 12 },
-  followBtn: { paddingVertical: 8, paddingHorizontal: 12, minHeight: 36 },
-});
-},
   followBtn: { paddingVertical: 8, paddingHorizontal: 12, minHeight: 36 },
 });

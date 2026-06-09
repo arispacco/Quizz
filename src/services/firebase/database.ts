@@ -7,6 +7,12 @@ function ref(path: string) {
   return database().ref(path);
 }
 
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  const snap = await ref(`users/${userId}`).once('value');
+  if (!snap.exists()) return null;
+  return { id: userId, ...snap.val() } as UserProfile;
+}
+
 export async function upsertUserProfile(profile: UserProfile): Promise<void> {
   const { id, ...data } = profile;
   await ref(`users/${id}`).set(data);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, Alert } from 'react-native';
-import { pick, isCancel, types } from '@react-native-documents/picker';
+import { pick, types } from '@react-native-documents/picker';
 import { useNavigation } from '@react-navigation/native';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '@/context/AuthContext';
@@ -40,8 +40,8 @@ export function PackImportScreen() {
         setAudioFile(null);
         showToast('Fichier texte importé', 'success');
       }
-    } catch (e) {
-      if (!isCancel(e)) {
+    } catch (e: any) {
+      if (e.code !== 'DOCUMENT_PICKER_CANCELED') {
         showToast('Erreur lors de l\'import', 'error');
       }
     }

@@ -97,7 +97,7 @@ export function UserPublicProfileScreen() {
         <UserCircle size={80} color={colors.primary} weight="thin" />
         <Text style={[typography.title, { color: colors.text, marginTop: 12 }]}>{user.pseudo}</Text>
         {user.activeTitle && (
-          <Badge label={user.activeTitle} color={colors.primary} style={{ marginTop: 4 }} />
+          <Badge label={user.activeTitle} color={colors.primary} />
         )}
         <View style={styles.statsRow}>
           <View style={styles.statItem}>

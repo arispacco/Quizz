@@ -141,13 +141,19 @@ export function DuelScreen() {
 
     if (profile && !local) {
       async function updateStats() {
+        if (!profile) return;
         try {
           const { leveledUp } = await updateProgressionAfterMatch(profile, result);
           if (leveledUp) showToast('Niveau supérieur ! 🏆', 'success');
           const opponent = players.find(p => p.id === opponentId);
           if (settings.connectionMode === 'online' && opponent) {
             const { delta } = calculateElo(profile.elo, 1200, result);
-            await upsertUserProfile({ ...profile, elo: profile.elo + delta });
+            await upsertUserProfile({ 
+              ...profile, 
+              id: profile.id ?? 'local', 
+              pseudo: profile.pseudo ?? 'Joueur',
+              elo: profile.elo + delta 
+            });
           }
         } catch (error) {
           console.error('Erreur stats:', error);
@@ -279,7 +285,7 @@ export function DuelScreen() {
     <Card>
       <Text style={[theme.typography.title, { color: theme.colors.primary }]}>FIN DU DUEL</Text>
       <Text style={[theme.typography.subtitle, { color: theme.colors.text, marginTop: 8 }]}>{playerLabel(players, duel.winnerId ?? '')} gagne !</Text>
-      <Button label="Retour au menu" variant="secondary" onPress={() => navigation.navigate('Main' as any)} style={{ marginTop: 16 }} />
+      <Button label="Retour au menu" variant="secondary" onPress={() => (navigation.navigate as any)('Main')} style={{ marginTop: 16 }} />
     </Card>
   );
 

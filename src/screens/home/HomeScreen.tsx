@@ -166,10 +166,23 @@ export function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { paddingTop: 8 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
   headerLeft: { flex: 1 },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   sectionTitle: { marginBottom: 12, marginTop: 8 },
   formatRow: { flexDirection: 'row', gap: 10 },
+  joinCard: { marginTop: 16, padding: 12 },
+  joinHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  joinInputRow: { flexDirection: 'row', gap: 8 },
+  input: {
+    flex: 1,
+    height: 44,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+  },
+  joinBtn: { minWidth: 60, height: 44 },
   packCard: { marginBottom: 12 },
 });

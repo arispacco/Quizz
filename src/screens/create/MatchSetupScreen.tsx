@@ -147,13 +147,3 @@ const styles = StyleSheet.create({
   formatRow: { flexDirection: 'row', gap: 10 },
   nav: { flexDirection: 'row', gap: 12, marginTop: 16 },
 });
-> s + 1)} />}
-      </View>
-    </ScreenLayout>
-  );
-}
-
-const styles = StyleSheet.create({
-  formatRow: { flexDirection: 'row', gap: 10 },
-  nav: { flexDirection: 'row', gap: 12, marginTop: 16 },
-});
